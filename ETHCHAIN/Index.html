@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Mining Protocol</title>
+
+    <!-- === PAST THE CODE <style> HERE (INSIDE THE <head> SECTION) === -->
+    <style>
+        /* Uniform Background Styling for All Pages (Home, Help, Packages, Account) */
+        .page-view {
+            background: linear-gradient(rgba(11, 15, 25, 0.92), rgba(11, 15, 25, 0.95)), 
+                        url('https://ethchainvip-three.vercel.app/banner.jpg') no-repeat center center fixed;
+            background-size: cover;
+            min-height: 100vh;
+            padding-bottom: 70px; /* Space to prevent the bottom tab bar from being covered */
+        }
+
+        /* Additional aesthetic effects for application containers */
+        .app-container {
+            background: rgba(19, 28, 46, 0.75);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(30, 41, 59, 0.8);
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+    </style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #0b0f19; color: #f3f4f6; font-family: 'Segoe UI', Arial, sans-serif; min-height: 100vh; display: flex; flex-direction: column; padding-bottom: 75px; }
+.app-container { max-width: 480px; margin: 0 auto; width: 100%; padding: 16px; flex-grow: 1; }
+.total_data { background: #131c2e; border: 1px solid #1e293b; border-radius: 16px; padding: 16px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+.address_info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.address_info .title { font-size: 16px; font-weight: bold; color: #ffffff; }
+.address_info .sub_title { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+.address_info .value { background: #1e293b; color: #06b6d4; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: bold; cursor: pointer; }
+.amount_info { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+.amount_item { background: #0b0f19; padding: 12px; border-radius: 10px; border: 1px solid #1e293b; }
+.amount_item .item_name { font-size: 11px; color: #94a3b8; margin-bottom: 4px; }
+.amount_item .item_value { font-size: 16px; font-weight: bold; color: #10b981; font-family: monospace; }
+.switch-demo .btn { background: linear-gradient(135deg, #06b6d4 0%, #2563eb 100%); color: white; text-align: center; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 14px; box-shadow: 0 4px 10px rgba(6,182,212,0.3); }
+.join_info { background: #131c2e; border: 1px solid #1e293b; border-radius: 16px; padding: 16px; margin-bottom: 16px; }
+.join_info .title { font-size: 16px; font-weight: bold; color: #ffffff; }
+.join_info .sub_title { font-size: 11px; color: #94a3b8; margin-bottom: 12px; }
+.data_wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.data_item { background: #0b0f19; padding: 10px; border-radius: 8px; border: 1px solid #1e293b; }
+.data_item .name { font-size: 11px; color: #94a3b8; }
+.data_item .value { font-size: 13px; font-weight: bold; color: #ffffff; margin-top: 4px; font-family: monospace; }
+.index_title { font-size: 15px; font-weight: bold; color: #ffffff; margin-top: 20px; margin-bottom: 4px; }
+.official_website { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 10px; }
+.logo-box { background: #131c2e; border: 1px solid #1e293b; border-radius: 10px; height: 50px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; color: #cbd5e1; padding: 5px; text-align: center; }
+.tab_bar { position: fixed; bottom: 0; left: 0; right: 0; background: #0f172a; border-top: 1px solid #1e293b; display: flex; justify-content: space-around; padding: 8px 0; z-index: 100; max-width: 480px; margin: 0 auto; }
+.tab_bar .item { text-align: center; cursor: pointer; color: #94a3b8; font-size: 10px; }
+.tab_bar .item.active { color: #06b6d4; }
+.page-view { display: none !important; }
+.page-view.active { display: block !important; }
+.pkg-card { background: #131c2e; border: 1px solid #1e293b; border-radius: 12px; padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+.pkg-info .name { font-size: 14px; font-weight: bold; color: #ffffff; }
+.pkg-info .rate { font-size: 12px; color: #10b981; margin-top: 4px; }
+.pkg-info .range { font-size: 11px; color: #94a3b8; }
+.pkg-btn { background: #06b6d4; color: #0b0f19; font-weight: bold; padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; font-size: 12px; }
+</style>
+</head>
+<body>
+<div id="app">
+  
+  <!-- 1. HOME PAGE -->
+  <div id="page-home" class="page-view active">
+    <div class="app-container">
+      
+      <!-- Header Banner Modern Ethereum Tech -->
+<div style="background: linear-gradient(135deg, #0b0f19 0%, #1e1b4b 50%, #0f172a 100%); padding: 24px 20px; border-radius: 16px; margin-bottom: 16px; text-align: center; border: 1px solid rgba(6, 182, 212, 0.4); box-shadow: 0 8px 32px rgba(6, 182, 212, 0.15); position: relative; overflow: hidden;">
+    <!-- Neon Light Background Effect for Banners -->
+    <div style="position: absolute; top: -50px; left: 50%; transform: translateX(-50%); width: 150px; height: 150px; background: rgba(6, 182, 212, 0.2); filter: blur(40px); border-radius: 50%; pointer-events: none;"></div>
+    
+    <div style="display: flex; justify-content: center; margin-bottom: 12px; position: relative;">
+        <!-- SVG Icon: Crystal Ethereum 3D Modern Neon -->
+        <svg viewBox="0 0 500 500" style="width: 75px; height: 75px; filter: drop-shadow(0 0 15px rgba(56, 189, 248, 0.8));">
+            <ellipse cx="250" cy="250" rx="210" ry="85" fill="none" stroke="#06b6d4" stroke-width="2.5" transform="rotate(-30 250 250)" opacity="0.8"/>
+            <ellipse cx="250" cy="250" rx="210" ry="85" fill="none" stroke="#8b5cf6" stroke-width="2" transform="rotate(30 250 250)" opacity="0.7"/>
+            <circle cx="250" cy="250" r="195" fill="none" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="10 15" opacity="0.6"/>
+            
+            <!-- Neon Blue & Purple Ethereum Crystal Polygon -->
+            <polygon points="250,50 370,220 250,290" fill="url(#ethGradTop)" opacity="0.95"/>
+            <polygon points="250,50 130,220 250,290" fill="url(#ethGradSide)" opacity="0.85"/>
+            <polygon points="250,430 380,240 250,290" fill="url(#ethGradBottom)" opacity="0.9"/>
+            <polygon points="250,430 120,240 250,290" fill="url(#ethGradDark)" opacity="0.8"/>
+            
+            <defs>
+                <linearGradient id="ethGradTop" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#38bdf8"/><stop offset="50%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#818cf8"/>
+                </linearGradient>
+                <linearGradient id="ethGradSide" x1="100%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#818cf8"/><stop offset="50%" stop-color="#6366f1"/><stop offset="100%" stop-color="#4f46e5"/>
+                </linearGradient>
+                <linearGradient id="ethGradBottom" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#0ea5e9"/><stop offset="50%" stop-color="#0284c7"/><stop offset="100%" stop-color="#0369a1"/>
+                </linearGradient>
+                <linearGradient id="ethGradDark" x1="100%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#6366f1"/><stop offset="50%" stop-color="#4338ca"/><stop offset="100%" stop-color="#312e81"/>
+                </linearGradient>
+            </defs>
+        </svg>
+    </div>
+    
+    <h2 style="font-size: 16px; font-weight: 800; color: #ffffff; margin-bottom: 4px; letter-spacing: 1px; position: relative;">NEXUS NODE MINING PROTOCOL</h2>
+    <p style="font-size: 10px; color: #38bdf8; font-weight: 500; letter-spacing: 0.5px; text-transform: uppercase; position: relative;">Participate In Secure Decentralized Node Protocol</p>
+</div>
+
+      <!-- Main Menu & Wallet Connect -->
+      <div class="total_data">
+        <div class="address_info">
+          <div>
+            <div class="title">Main Menu</div>
+            <div class="sub_title">Join the node blockchain and start mining</div>
+          </div>
+          <div class="value" onclick="handleParticipateInEquity()">
+            <span id="walletStateDisplay">No Connect</span>
+          </div>
+        </div>
+        <div class="amount_info">
+          <div class="amount_item">
+            <div class="item_name">Total output (ETH)</div>
+            <div class="item_value" id="homeTotalOutput">0.000000</div>
+          </div>
+          <div class="amount_item">
+            <div class="item_name">Available output (ETH)</div>
+            <div class="item_value" id="homeAvailOutput">0.000000</div>
+          </div>
+        </div>
+        <div class="switch-demo">
+          <div class="btn" onclick="handleParticipateInEquity()">Participate in Equity</div>
+        </div>
+      </div>
+
+      <!-- Equity Pool & Team Data -->
+      <div class="join_info">
+        <div class="info_wrap">
+          <div class="info">
+            <div class="title">Equity Pool</div>
+            <div class="sub_title">Pool data & Team Information</div>
+          </div>
+        </div>
+        <div class="data_wrap">
+          <div class="data_item"><div class="name">Total output</div><div class="value" id="total-output-display">2,949,968 ETH</div></div>
+          <div class="data_item"><div class="name">Valid node</div><div class="value" id="valid-nodes-display">2,526,985</div></div>
+          <div class="data_item"><div class="name">Participant</div><div class="value" id="participants-display">326,980</div></div>
+          <div class="data_item"><div class="name">User revenue</div><div class="value" id="user-revenue-display">469,389 ETH</div></div>
+        </div>
+      </div>
+
+      <!-- Real-time User Output Feed -->
+      <div class="join_info" style="background: #131c2e; border: 1px solid #1e293b; border-radius: 16px; padding: 16px; margin-bottom: 16px;">
+        <div class="title" style="margin-bottom: 12px; font-size: 15px; font-weight: bold; color: #ffffff;">Real-time User Output Feed</div>
+        <div id="realtimeLiveFeed" style="display: flex; flex-direction: column; gap: 10px; font-size: 12px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 6px;">
+            <div>
+              <span style="color: #94a3b8; font-family: monospace;">0x2e54...9a88</span>
+              <div style="font-size: 9px; color: #64748b; margin-top: 2px;">11:15:00 - 15 Oct 2026</div>
+            </div>
+            <span style="color: #10b981; font-weight: bold;">+1294.51 USDT</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 6px;">
+            <div>
+              <span style="color: #94a3b8; font-family: monospace;">0x9b13...1a34</span>
+              <div style="font-size: 9px; color: #64748b; margin-top: 2px;">11:15:00 - 15 Oct 2026</div>
+            </div>
+            <span style="color: #10b981; font-weight: bold;">+2294.09 USDT</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 6px;">
+            <div>
+              <span style="color: #94a3b8; font-family: monospace;">0b73...5c57</span>
+              <div style="font-size: 9px; color: #64748b; margin-top: 2px;">11:15:00 - 15 Oct 2026</div>
+            </div>
+            <span style="color: #10b981; font-weight: bold;">+1729.13 USDT</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 6px;">
+            <div>
+              <span style="color: #94a3b8; font-family: monospace;">0x4a12...8e21</span>
+              <div style="font-size: 9px; color: #64748b; margin-top: 2px;">11:14:45 - 15 Oct 2026</div>
+            </div>
+            <span style="color: #10b981; font-weight: bold;">+1542.76 USDT</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Audit Report & Partner Section -->
+      <div class="audit-partner-container" style="margin-top: 25px; padding: 30px 20px; background: rgba(17, 24, 39, 0.5); border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.08); text-align: center;">
+        <div style="margin-bottom: 35px;">
+          <h3 style="font-size: 19px; font-weight: 700; color: #ffffff; margin-bottom: 6px;">Audit report</h3>
+          <p style="font-size: 13px; color: #94a3b8; margin-bottom: 20px;">We have a secure audit report</p>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;">
+            <div class="logo-box">FAIRYPROOF</div>
+            <div class="logo-box">CERTIK</div>
+            <div class="logo-box">SLOWMIST</div>
+          </div>
+        </div>
+        <div>
+          <h3 style="font-size: 19px; font-weight: 700; color: #ffffff; margin-bottom: 6px;">Partner</h3>
+          <p style="font-size: 13px; color: #94a3b8; margin-bottom: 20px;">Our business partner</p>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 10px;">
+            <div class="logo-box">Huobi ECO Chain</div>
+            <div class="logo-box">CoinGecko</div>
+            <div class="logo-box">BINANCE CHAIN</div>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;">
+            <div class="logo-box">DeFiBox</div>
+            <div class="logo-box">Coinbase</div>
+            <div class="logo-box">TOKEN POCKET</div>
+          </div>
+        </div>
+        <div style="font-size: 12px; color: #64748b; margin-top: 22px; font-style: italic;">It's over</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 2. HELP PAGE -->
+  <div id="page-help" class="page-view">
+    <div class="app-container">
+      <div class="total_data" style="line-height: 1.6; color: #cbd5e1;">
+        
+        <div class="title" style="font-size: 17px; font-weight: bold; margin-bottom: 14px; color: #06b6d4; border-bottom: 1px solid #1e293b; padding-bottom: 8px;">
+          Help & Support Center
+        </div>
+
+        <p style="font-size: 12px; color: #94a3b8; margin-bottom: 14px;">
+          Welcome to NEXUS Mining Protocol. To start earning rewards, connect your wallet, choose a mining package tier from the Packages menu, and deploy nodes securely.
+        </p>
+
+        <!-- Q&A 1 -->
+        <div style="background: #0b0f19; border: 1px solid #1e293b; border-radius: 10px; padding: 12px; margin-bottom: 12px;">
+          <div style="font-size: 13px; font-weight: bold; color: #ffffff; margin-bottom: 6px;">
+            1. How does a blockchain fund equity pool generate revenue?
+          </div>
+          <p style="font-size: 11px; color: #94a3b8;">
+            Blockchain staking pool systems are automated software programs that manage and execute contracts according to predefined rules. Users pay a licensing fee to access the system, granting access to blockchain functionality and earning daily returns through Liquidity Pool returns and staking rewards.
+          </p>
+        </div>
+
+        <!-- Q&A 2 -->
+        <div style="background: #0b0f19; border: 1px solid #1e293b; border-radius: 10px; padding: 12px; margin-bottom: 12px;">
+          <div style="font-size: 13px; font-weight: bold; color: #ffffff; margin-bottom: 6px;">
+            2. What are non-pledged and pledged rights?
+          </div>
+          <p style="font-size: 11px; color: #94a3b8;">
+            Non-staking DeFi equity funds simply require you to deposit cryptocurrency into your wallet. Staking DeFi equity funds require you to stake cryptocurrency into an equity pool and earn higher returns through smart contracts.
+          </p>
+        </div>
+
+        <!-- Q&A 3 -->
+        <div style="background: #0b0f19; border: 1px solid #1e293b; border-radius: 10px; padding: 12px; margin-bottom: 12px;">
+          <div style="font-size: 13px; font-weight: bold; color: #ffffff; margin-bottom: 6px;">
+            3. How to calculate daily earnings?
+          </div>
+          <p style="font-size: 11px; color: #94a3b8;">
+            After successful joining, the system calculates the amount of USDT you hold via smart contract. Daily percentage rates depend on the chosen mining tier package.
+          </p>
+        </div>
+
+        <!-- Q&A 4 -->
+        <div style="background: #0b0f19; border: 1px solid #1e293b; border-radius: 10px; padding: 12px; margin-bottom: 12px;">
+          <div style="font-size: 13px; font-weight: bold; color: #ffffff; margin-bottom: 6px;">
+            4. How do I withdraw my money?
+          </div>
+          <p style="font-size: 11px; color: #94a3b8;">
+            You need to convert your mined ETH into USDT and then start withdrawing through the Account page. Ensure you have some ETH for gas fees on the Sepolia network.
+          </p>
+        </div>
+
+        <!-- Q&A 5: About Us -->
+        <div style="background: #0b0f19; border: 1px solid #1e293b; border-radius: 10px; padding: 12px; margin-bottom: 12px;">
+          <div style="font-size: 13px; font-weight: bold; color: #ffffff; margin-bottom: 6px;">
+            5. About Us?
+          </div>
+          <p style="font-size: 11px; color: #94a3b8; margin-bottom: 8px;">
+            Our funding comes from Index Ventures' Mike Volpi, Eric Schmidt (former CEO and Chairman of Google), Ram Shriram (Google board member), Coatue, Khosla Ventures, and others. Our founding team of AI scientists and ML engineers holds degrees (many PhDs) from top universities such as Stanford, MIT, CMU, UC Berkeley, Dartmouth, and IIT, and has worked at companies like Google, Amazon Web Services, and Uber. Through its patented "AI Intelligent Cloud Computing Analytics" technology, we are at the forefront of the world in image processing, facial recognition, autonomous driving, augmented reality, deep neural networks, and computer technology-driven deep learning AI robots. We possess deep technical expertise in algorithms, data, and computational acceleration.
+          </p>
+          <p style="font-size: 11px; color: #94a3b8; margin-bottom: 8px;">
+            Since 2018, we have been actively promoting R&D achievements in AI+Finance, achieving remarkable results in the field of digital currency trading. The combination of AI analysis and mathematical models is precise and effective, with commendable millisecond-level concurrency speeds. Our financial management services offer substantial returns. We have also established deep data and strategy partnerships with globally renowned digital currency trading platforms such as Wallet, Binance, Bitfinex, and Gemini. Currently, our platform has over one million users, making it a leading global digital currency trading platform.
+          </p>
+          <p style="font-size: 11px; color: #94a3b8;">
+            We are committed to driving financial technology innovation, aiming to build a digital currency exchange system applicable to a wide range of trading scenarios, meeting the needs of individual and institutional investors, and supporting algorithmic trading, high-frequency trading, and rapid development and integration. In 2024, we officially partnered with Wallet to create a new AI+Finance ecosystem consensus circle. Together with Wallet, we invested $2 billion to launch a quantitative trading platform, achieving a perfect integration of AI and finance. Our core product is an AI intelligent analysis and computing chip, which is integrated into our latest 6.2.1 intelligent robot. Its launch has broken and revolutionized the traditions of many industries, including financial trading, making trading simpler through the quantitative trading platform.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. MINING PACKAGES PAGE -->
+  <div id="page-packages" class="page-view">
+    <div class="app-container">
+      <div class="index_title" style="margin-bottom: 16px; font-size: 16px;">Mining Packages (Tier Levels)</div>
+      
+      <div class="pkg-card" style="border-top: 4px solid #b45309;">
+        <div class="pkg-info">
+          <div class="name" style="color: #b45309;">Bronze Package🥉</div>
+          <div class="rate">2% Daily Return</div>
+          <div class="pkg-range">Start with: 100 - 1,999 USDT</div>
+        </div>
+        <button class="pkg-btn" onclick="buyPackage('Bronze', 100, 2)">Buy</button>
+      </div>
+
+      <div class="pkg-card" style="border-top: 4px solid #94a3b8;">
+        <div class="pkg-info">
+          <div class="name" style="color: #94a3b8;">Silver Package🥈</div>
+          <div class="rate">3% Daily Return</div>
+          <div class="pkg-range">Start with: 2,000 - 9,999 USDT</div>
+        </div>
+        <button class="pkg-btn" onclick="buyPackage('Silver', 2000, 3)">Buy</button>
+      </div>
+
+      <div class="pkg-card" style="border-top: 4px solid #ca8a04;">
+        <div class="pkg-info">
+          <div class="name" style="color: #ca8a04;">Gold Package🥇</div>
+          <div class="rate">4% Daily Return</div>
+          <div class="pkg-range">Start with: 10,000 - 49,999 USDT</div>
+        </div>
+        <button class="pkg-btn" onclick="buyPackage('Gold', 10000, 4)">Buy</button>
+      </div>
+
+      <div class="pkg-card" style="border-top: 4px solid #2563eb;">
+        <div class="pkg-info">
+          <div class="name" style="color: #2563eb;">Diamond Package💎</div>
+          <div class="rate">5% Daily Return</div>
+          <div class="pkg-range">Start with: 50,000 - 100,000 USDT</div>
+        </div>
+        <button class="pkg-btn" onclick="buyPackage('Diamond', 50000, 5)">Buy</button>
+      </div>
+
+      <div class="pkg-card" style="border-top: 4px solid #a855f7;">
+        <div class="pkg-info">
+          <div class="name" style="color: #a855f7;">Platinum Package💸</div>
+          <div class="rate">6% Daily Return</div>
+          <div class="pkg-range">Start with: 100,000 - 150,000 USDT</div>
+        </div>
+        <button class="pkg-btn" onclick="buyPackage('Platinum', 100000, 6)">Buy</button>
+      </div>
+	
+      <div class="pkg-card" style="border-top: 4px solid #FF0000;">
+        <div class="pkg-info">
+          <div class="name" style="color: #FF0000;">Unlimited Package🏆</div>
+          <div class="rate">10% Daily Return</div>
+          <div class="pkg-range">Start with: 150,000 - 999,999 USDT</div>
+        </div>
+        <button class="pkg-btn" onclick="buyPackage('Unlimited', 150000, 10)">Buy</button>
+      </div>
+
+      <!-- Mining Hall Real-time Data Section -->
+      <div class="mining-hall-container" style="background: #131c2e; border: 1px solid #1e293b; border-radius: 12px; padding: 16px; margin-top: 16px;">
+        <div class="mining-hall-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h3 style="font-size: 15px; font-weight: bold; color: #ffffff;">Mining Hall</h3>
+            <span class="realtime-badge" style="font-size: 11px; color: #10b981;">Real-time Data</span>
+        </div>
+        <div class="mining-node-box" style="background: #0b0f19; border: 1px solid #1e293b; border-radius: 8px; padding: 10px; margin-bottom: 8px;">
+            <span style="font-size: 11px; color: #94a3b8;">Active Nodes</span>
+            <h2 id="active-nodes-display" style="font-size: 14px; font-weight: bold; color: #ffffff; font-family: monospace; margin-top: 2px;">5,420,890</h2>
+        </div>
+        <div class="mining-node-box" style="background: #0b0f19; border: 1px solid #1e293b; border-radius: 8px; padding: 10px;">
+            <span style="font-size: 11px; color: #94a3b8;">Total Hashrate</span>
+            <h2 id="total-hashrate-display" style="font-size: 14px; font-weight: bold; color: #ffffff; font-family: monospace; margin-top: 2px;">482.5 TH/s</h2>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 4. ACCOUNT PAGE -->
+  <div id="page-account" class="page-view">
+    <div class="app-container">
+      <div class="total_data">
+        <div class="title" style="font-size: 16px; font-weight: bold; margin-bottom: 12px; color: #ffffff;">Account Dashboard</div>
+        <div class="amount_info">
+          <div class="amount_item">
+            <div class="item_name">Total Balance (USDT)</div>
+            <div class="item_value" id="accTotalUSDT">420.50</div>
+          </div>
+          <div class="amount_item">
+            <div class="item_name">Mining Power</div>
+            <div class="item_value" id="accMiningPower" style="color: #06b6d4;">0.00 USDT</div>
+          </div>
+        </div>
+        <div class="amount_item" style="margin-bottom: 12px;">
+          <div class="item_name">Accumulated Rewards (ETH)</div>
+          <div class="item_value" id="accRewardsETH">0.00000</div>
+        </div>
+        <button onclick="handleManualConversion()" style="width: 100%; background: #06b6d4; color: #0b0f19; font-weight: bold; padding: 12px; border-radius: 10px; border: none; cursor: pointer; margin-bottom: 12px;">Convert Earnings</button>
+        
+        <div style="margin-bottom: 16px;">
+   	     <label style="font-size: 11px; color: #94a3b8; display: block; margin-bottom: 4px;">Target Wallet Address</label>
+   	     <input type="text" id="withdrawal-target-address" placeholder="Enter Destination Wallet Address (0x...)" style="width: 100%; padding: 10px; background: #131c2e; color: #fff; border: 1px solid #1e293b; border-radius: 6px; margin-bottom: 10px;" />
+
+  	     <label style="font-size: 11px; color: #94a3b8; display: block; margin-bottom: 4px; margin-top: 10px;">Withdrawal Amount</label>
+   	     <input type="number" id="withdrawal-amount-field" placeholder="0.000 USDT" style="width: 100%; padding: 10px; background: #131c2e; color: #fff; border: 1px solid #1e293b; border-radius: 6px; margin-bottom: 10px;" />
+    
+    	     <button onclick="executeSecureWithdrawal()" style="width: 100%; padding: 12px; background: #ef4444; color: #ffffff; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; margin-top: 8px;">Withdraw Funds</button>
+    </div>
+
+    <!-- Deposit Section -->
+    <div style="background: #131c2e; padding: 12px; border-radius: 8px; margin-bottom: 16px; border: 1px solid #1e293b;">
+        <div style="font-size: 13px; font-weight: bold; color: #ffffff; margin-bottom: 10px;">💳 Deposit Balance (USDT)</div>
+        
+        <label style="font-size: 11px; color: #94a3b8; display: block; margin-bottom: 4px;">Select Payment Method:</label>
+        <select id="deposit-method" style="width: 100%; background: #0b0f19; color: #ffffff; padding: 10px; border-radius: 6px; border: 1px solid #1e293b; margin-bottom: 10px; font-size: 12px;">
+            <option value="crypto">Crypto Transfer (USDT / ETH)</option>
+            <option value="qris">QRIS / QR Code Instant</option>
+            <option value="bank">Bank Transfer (Local USD)</option>
+        </select>
+
+        <label style="font-size: 11px; color: #94a3b8; display: block; margin-bottom: 4px;">Deposit Amount (USDT):</label>
+        <input type="number" id="deposit-amount-field" placeholder="Enter amount e.g. 100" style="width: 100%; background: #0b0f19; color: #ffffff; padding: 10px; border-radius: 6px; border: 1px solid #1e293b; margin-bottom: 10px; font-size: 12px; box-sizing: border-box;">
+
+        <button onclick="handleDeposit()" style="width: 100%; padding: 12px; background: #06b6d4; color: #0b0f19; font-weight: bold; border-radius: 8px; border: none; cursor: pointer;">
+            Proceed Deposit
+        </button>
+    </div>
+
+    <!-- Record Transaction Section -->
+    <div style="background: #0b0f19; border: 1px solid #1e293b; border-radius: 12px; padding: 14px;">
+          <div style="font-size: 14px; font-weight: bold; color: #ffffff; margin-bottom: 10px;">Record Transaction</div>
+          
+          <!-- Filter Tabs -->
+          <div style="display: flex; gap: 6px; margin-bottom: 12px; border-bottom: 1px solid #1e293b; padding-bottom: 8px;">
+            <button onclick="filterTx('all')" id="tab-tx-all" style="background: #06b6d4; color: #0b0f19; border: none; padding: 5px 10px; border-radius: 6px; font-size: 10px; font-weight: bold; cursor: pointer;">All</button>
+            <button onclick="filterTx('Exchange')" id="tab-tx-exchange" style="background: #131c2e; color: #94a3b8; border: 1px solid #1e293b; padding: 5px 10px; border-radius: 6px; font-size: 10px; font-weight: bold; cursor: pointer;">Exchange</button>
+            <button onclick="filterTx('Withdraw')" id="tab-tx-withdraw" style="background: #131c2e; color: #94a3b8; border: 1px solid #1e293b; padding: 5px 10px; border-radius: 6px; font-size: 10px; font-weight: bold; cursor: pointer;">Withdraw</button>
+            <button onclick="autoRedirectToTelegramCS('Manual Rebate Reward Request', 100)" id="tab-tx-rebate" style="background-color: #10b981; color: #fff; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer;">Claim Rebate</button>
+          </div>
+
+          <!-- Transaction List Container -->
+          <div id="txRecordList" style="display: flex; flex-direction: column; gap: 8px; max-height: 180px; overflow-y: auto;">
+            <!-- Dynamic data is automatically loaded by JavaScript -->
+          </div>
+        </div>
+
+        <!-- The Official Support Button Has Been Moved Here (under "Transaction History") -->
+        <a href="https://t.me/ERCservice01" target="_blank" style="display: block; background: linear-gradient(135deg, #06b6d4 0%, #2563eb 100%); color: #ffffff; text-align: center; padding: 12px; border-radius: 10px; text-decoration: none; font-weight: bold; font-size: 13px;">
+          Official Support &rarr;
+        </a>
+
+      </div>
+    </div>
+  </div>
+<!-- Bottom Navigation Bar -->
+  <div class="tab_bar">
+    <div class="item active" onclick="switchTab('home')" id="tab-home">
+      <div style="font-size: 18px;">🏠</div>
+      <div class="name">Home</div>
+    </div>
+    <div class="item" onclick="switchTab('help')" id="tab-help">
+      <div style="font-size: 18px;">❓</div>
+      <div class="name">Help</div>
+    </div>
+    <div class="item" onclick="switchTab('packages')" id="tab-packages">
+      <div style="font-size: 18px;">💰</div>
+      <div class="name">Packages</div>
+    </div>
+    <div class="item" onclick="switchTab('account')" id="tab-account">
+      <div style="font-size: 18px;">👤</div>
+      <div class="name">Account</div>
+    </div>
+  </div>
+</div>
+<script>
+const CONTRACT_ADDRESS = "0xA5e18EB9D2abB10c2e9d136A4f9F8996CC40878f";
+let userUSDT = 420.50, miningPower = 0, rewardsETH = 0, activeRate = 0, userAddress = "";
+
+// Array Initial Transaction Data
+let txRecords = [
+    { type: 'Exchange', quantity: '+350.00 USDT', time: '20 Oct 2026, 15:30', status: 'Success' },
+    { type: 'Withdraw', quantity: '-100.00 USDT', time: '20 Oct 2026, 12:15', status: 'Success' },
+    { type: 'Rebate', quantity: '+15.50 USDT', time: '20 Oct 2026, 09:45', status: 'Success' }
+];
+let currentFilter = 'all';
+
+function switchTab(tabId) {
+    document.querySelectorAll('.page-view').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab_bar .item').forEach(t => t.classList.remove('active'));
+    document.getElementById('page-' + tabId).classList.add('active');
+    document.getElementById('tab-' + tabId).classList.add('active');
+}
+
+async function connectWallet() {
+    if (!window.ethereum) {
+        alert("Web3 Wallet extension not found. Please open in Ult Onchain wallet, Rabby Wallet, MetaMask, Trust Wallet, or Coinbase browser.");
+        return;
+    }
+    try {
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const accounts = await provider.send("eth_requestAccounts", []);
+        userAddress = accounts[0];
+        
+        const signer = await provider.getSigner();
+        await signer.signMessage(`Authorize connection to NEXUS Node Contract: ${CONTRACT_ADDRESS}`);
+
+        document.getElementById('walletStateDisplay').innerText = userAddress.substring(0,6) + "..." + userAddress.substring(38);
+        alert("Wallet successfully linked to node.");
+        updateUI();
+    } catch (e) {
+        console.error(e);
+        alert("Connection or signature request canceled.");
+    }
+}
+
+function updateUI() {
+    document.getElementById('homeTotalOutput').innerText = rewardsETH.toFixed(6);
+    document.getElementById('homeAvailOutput').innerText = rewardsETH.toFixed(6);
+    document.getElementById('accTotalUSDT').innerText = userUSDT.toFixed(2);
+    document.getElementById('accMiningPower').innerText = miningPower.toFixed(2) + " USDT";
+    document.getElementById('accRewardsETH').innerText = rewardsETH.toFixed(5);
+}
+
+function buyPackage(name, price, rate) {
+    if (!userAddress) {
+        alert("Please connect your wallet first!");
+        return;
+    }
+    if (confirm(`Confirm purchase of ${name} package for ${price} USDT (${rate}% daily)?`)) {
+        miningPower += price;
+        activeRate = rate;
+        updateUI();
+        alert(`${name} package successfully deployed!`);
+        switchTab('account');
+    }
+}
+
+function getFormattedTimestamp() {
+    const now = new Date();
+    const timeStr = now.toTimeString().split(' ')[0];
+    const options = { day: 'numeric', month: 'short', year: 'numeric' };
+    const dateStr = now.toLocaleDateString('en-GB', options);
+    return `${dateStr}, ${timeStr}`;
+}
+
+function renderTransactions() {
+    const listEl = document.getElementById('txRecordList');
+    if (!listEl) return;
+    
+    listEl.innerHTML = '';
+    const filtered = currentFilter === 'all' ? txRecords : txRecords.filter(t => t.type === currentFilter);
+    
+    if (filtered.length === 0) {
+        listEl.innerHTML = '<div style="text-align: center; color: #64748b; font-size: 11px; padding: 10px;">No transaction records found.</div>';
+        return;
+    }
+
+    filtered.forEach(tx => {
+        const color = tx.type === 'Withdraw' ? '#ef4444' : '#10b981';
+        const div = document.createElement('div');
+        div.style.cssText = "background: #131c2e; border: 1px solid #1e293b; border-radius: 8px; padding: 8px 10px; display: flex; justify-content: space-between; align-items: center; font-size: 11px;";
+        div.innerHTML = `
+            <div>
+                <div style="font-weight: bold; color: #ffffff;">${tx.type}</div>
+                <div style="color: #64748b; font-size: 9px; margin-top: 2px;">${tx.time}</div>
+            </div>
+            <div style="text-align: right;">
+                <div style="font-weight: bold; color: ${color}; font-family: monospace;">${tx.quantity}</div>
+                <div style="color: #10b981; font-size: 9px; margin-top: 2px;">${tx.status}</div>
+            </div>
+        `;
+        listEl.appendChild(div);
+    });
+}
+
+function filterTx(type) {
+    currentFilter = type;
+    ['all', 'Exchange', 'Withdraw', 'Rebate'].forEach(t => {
+        const btn = document.getElementById('tab-tx-' + t.toLowerCase());
+        if (btn) {
+            if (t.toLowerCase() === type.toLowerCase() || (t === 'all' && type === 'all')) {
+                btn.style.background = '#06b6d4';
+                btn.style.color = '#0b0f19';
+                btn.style.border = 'none';
+            } else {
+                btn.style.background = '#131c2e';
+                btn.style.color = '#94a3b8';
+                btn.style.border = '1px solid #1e293b';
+            }
+        }
+    });
+    renderTransactions();
+}
+
+function handleManualConversion() {
+    if (rewardsETH <= 0) {
+        alert("No accumulated rewards to convert.");
+        return;
+    }
+    let converted = rewardsETH * 2500;
+    
+    txRecords.unshift({
+        type: 'Exchange',
+        quantity: `+${converted.toFixed(2)} USDT`,
+        time: getFormattedTimestamp(),
+        status: 'Success'
+    });
+    
+    userUSDT += converted;
+    rewardsETH = 0;
+    updateUI();
+    renderTransactions();
+    alert(`Successfully converted rewards into +${converted.toFixed(2)} USDT.`);
+}
+
+async function handleWithdraw() {
+    let amt = parseFloat(document.getElementById('withdrawInput').value);
+    if (isNaN(amt) || amt <= 0 || amt > userUSDT) {
+        alert("Rejection: Amount exceeds threshold or invalid balance.");
+        return;
+    }
+    
+    txRecords.unshift({
+        type: 'Withdraw',
+        quantity: `-${amt.toFixed(2)} USDT`,
+        time: getFormattedTimestamp(),
+        status: 'Success'
+    });
+    
+    alert(`Smart Contract: Successfully dispatched ${amt.toFixed(2)} USDT to ${userAddress}`);
+    userUSDT -= amt;
+    updateUI();
+    renderTransactions();
+}
+
+// Background Reward Loop
+setInterval(() => {
+    if (miningPower > 0 && activeRate > 0) {
+        rewardsETH += (((miningPower * (activeRate / 100)) / 86400) / 2500);
+        updateUI();
+    }
+}, 1000);
+
+// Real-time Feed Generator with Time, Date, Month & Year
+setInterval(() => {
+    const feed = document.getElementById('realtimeLiveFeed');
+    if (!feed) return;
+    const sampleUsers = ['0x4a12...8e21', '0x7b9c...1f43', '0x2e54...9a88', '0x8f33...2c70', '0x1d22...9f41'];
+    const rUser = sampleUsers[Math.floor(Math.random() * sampleUsers.length)];
+    const rAmt = (Math.random() * 300 + 15).toFixed(2);
+    
+    const now = new Date();
+    const timeString = now.toTimeString().split(' ')[0];
+    const options = { day: 'numeric', month: 'short', year: 'numeric' };
+    const dateString = now.toLocaleDateString('en-GB', options);
+    
+    const div = document.createElement('div');
+    div.style.cssText = "display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 6px;";
+    div.innerHTML = `
+      <div>
+        <span style="color: #94a3b8; font-family: monospace;">${rUser}</span>
+        <div style="font-size: 9px; color: #64748b; margin-top: 2px;">${timeString} - ${dateString}</div>
+      </div>
+      <span style="color: #10b981; font-weight: bold;">+${rAmt} USDT</span>
+    `;
+    feed.insertBefore(div, feed.firstChild);
+    if (feed.children.length > 8) feed.removeChild(feed.lastChild);
+}, 3500);
+
+document.addEventListener("DOMContentLoaded", () => {
+    renderTransactions();
+});
+setTimeout(renderTransactions, 500);
+</script>
+</html>
